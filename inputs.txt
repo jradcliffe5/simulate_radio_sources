@@ -1,0 +1,9 @@
+## Input file for the size measurement tests
+fitsfile = target_uvsub_2.fits
+uvfile = HDFL0074_SPLIT.ms
+fits_rms = target_uvsub_2_rms.fits
+SN = 3,5,8,10,15,20,30,50,100
+ngrid_points = 10
+pc_edge_cut = 10
+model = delta
+type_test = uvplane
