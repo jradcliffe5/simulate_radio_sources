@@ -38,6 +38,7 @@ fitsfile = str(inputs['fitsfile'])
 uvfile = inputs['uvfile']
 rms = inputs['fits_rms']
 model = inputs['model']
+wsclean_run = inputs['wsclean_run']
 
 if model == 'delta':
 	extension = 'delt'
@@ -66,7 +67,10 @@ for i in os.listdir('./'):
 		#partition(vis=uvfile,outputvis=uvfile.split('.ms')[0]+'_temp.ms', createmms=True)
 		ft(vis=UV_temp,model=CASA_model, usescratch=True)
 		uvsub(vis=UV_temp,reverse=True)
-		tclean(vis=UV_temp,imagename=i.split('.fits')[0],imsize=[header['NAXIS1'],header['NAXIS2']], cell='0.3arcsec', niter=30000,nsigma=2.5, deconvolver='clark',parallel=True, usemask='auto-multithresh')
+		if wsclean_run == 'True':
+			os.system('python run_wsclean.py %s %d %d %s %s %d %s' % (i.split('.fits')[0], header['NAXIS1'], header['NAXIS2'], '0.3arcsec', 30000, uvtemp))
+		else:
+			tclean(vis=UV_temp,imagename=i.split('.fits')[0],imsize=[header['NAXIS1'],header['NAXIS2']], cell='0.3arcsec', niter=30000,nsigma=2.5, deconvolver='clark',parallel=True, usemask='auto-multithresh')
 		#os.system('rm -r %s*' % UV_temp)
 
 		exportfits(imagename=i.split('.fits')[0]+'.image',fitsimage=i.split('.fits')[0]+'.image.fits')

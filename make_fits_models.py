@@ -46,23 +46,27 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid):
 
 	try:
 		float(rms)
+		print('RMS value found')
 		rms_float = True
 	except ValueError:
+		print('Using supplied rms image to calculate S/N flux')
 		rms_float = False
 		rms_hdu = fits.open(rms)
 		rms_im = rms_hdu[0].data
 		rms_hdu.close()
 
-	x = []
-	y = []
+
 	for i in range(len(SN)):
 		image_data = image_data0
+		SN_flux=np.empty(len(pixel_grid))
+		x = []
+		y = []
 		for j in range(len(pixel_grid)):
 			if rms_float == True:
-				SN_flux = float(SN[i]*rms)
+				SN_flux[j] = float(SN[i]*rms)
 			else:
-				SN_flux = float(SN[i]*rms_im[pixel_grid[j][0],pixel_grid[j][1]])
-			image_data[0,0,pixel_grid[j][0],pixel_grid[j][1]] = SN_flux
+				SN_flux[j] = float(SN[i]*rms_im[pixel_grid[j][1],pixel_grid[j][0]])
+			image_data[0,0,pixel_grid[j][1],pixel_grid[j][0]] = SN_flux[j]
 			x = x + [pixel_grid[j][0]]
 			y = y + [pixel_grid[j][1]]
 		x_world = wcs.all_pix2world(x,y,1,1,1)[0]
