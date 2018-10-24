@@ -52,7 +52,7 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid):
 		print('Using supplied rms image to calculate S/N flux')
 		rms_float = False
 		rms_hdu = fits.open(rms)
-		rms_im = rms_hdu[0].data
+		rms_im = rms_hdu[0].data.squeeze()
 		rms_hdu.close()
 
 
