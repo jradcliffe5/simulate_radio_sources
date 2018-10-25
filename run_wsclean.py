@@ -17,4 +17,4 @@ else:
 	rest_beam = '-beam-shape %s %s %s' % (bmaj,bmin,bpa)
 
 
-os.system('/Volumes/HD-LXU3/anaconda2/envs/wsclean2.5/bin/wsclean -name %s -size %d %d -scale %s -auto-threshold 0.3 -auto-mask 3 -mgain 0.9 -niter %d -weight natural %s %s' % (imagename,imsize1,imsize2,cell,niter,rest_beam,vis))
+os.system('/scratch/users/radcliff/wsclean-2.6/build/wsclean -nwlayers 1 -j 25 -parallel-deconvolution 1500 -name %s -size %d %d -scale %s -auto-threshold 0.3 -auto-mask 3 -mgain 0.9 -niter %d -weight natural %s %s' % (imagename,imsize1,imsize2,cell,niter,rest_beam,vis))
