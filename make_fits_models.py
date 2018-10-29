@@ -27,6 +27,7 @@ def setup_source_pixel_grid(fitsheader, npoint, pc_edge_cut, random):
 	DEC_pc_cut = (DEC_pix)*pc_edge_cut
 	DEC = np.array([int(0+DEC_pc_cut), int((DEC_pix-1)-RA_pc_cut)])
 	if random == 'True':
+		print('Making random grid')
 		RA = np.random.randint(RA[0],RA[1]+1, size=npoint**2)
 		DEC = np.random.randint(DEC[0],DEC[1]+1,size=npoint**2)
 		pointings = np.array([RA,DEC]).T
@@ -34,8 +35,8 @@ def setup_source_pixel_grid(fitsheader, npoint, pc_edge_cut, random):
 			while len(np.where(np.equal([True,True], np.isclose(pointings[i],pointings,atol=3,rtol=0)).all(axis=1)==True)[0])>1:
 				pointings[i] = np.array([np.random.randint(RA[0],RA[1]+1, size=1)[0], np.random.randint(DEC[0],DEC[1]+1,size=1)[0]])
 
-
 	else:
+		print('Making boringly spaced grid')
 		RA = np.linspace(RA[0],RA[1],npoint,endpoint=True).astype(int)
 		DEC = np.linspace(DEC[0],DEC[1],npoint,endpoint=True).astype(int)
 		pointings = []
