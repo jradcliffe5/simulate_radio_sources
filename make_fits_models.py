@@ -19,19 +19,29 @@ def convertAIPStoPythonImage(filename,outfilename):
 	hdulist.writeto(outfilename,overwrite=True)
 	return outfilename
 
-def setup_source_pixel_grid(fitsheader, npoint, pc_edge_cut):
+def setup_source_pixel_grid(fitsheader, npoint, pc_edge_cut, random):
 	RA_pix = fitsheader['NAXIS1']
 	DEC_pix = fitsheader['NAXIS2']
 	RA_pc_cut = (RA_pix)*pc_edge_cut
 	RA = np.array([int(0+RA_pc_cut), int((RA_pix-1)-RA_pc_cut)])
 	DEC_pc_cut = (DEC_pix)*pc_edge_cut
 	DEC = np.array([int(0+DEC_pc_cut), int((DEC_pix-1)-RA_pc_cut)])
-	RA = np.linspace(RA[0],RA[1],npoint,endpoint=True).astype(int)
-	DEC = np.linspace(DEC[0],DEC[1],npoint,endpoint=True).astype(int)
-	pointings = []
-	for i in RA:
-		for j in DEC:
-			pointings = pointings + [[i,j]]
+	if random == 'True':
+		RA = np.random.randint(RA[0],RA[1]+1, size=npoint**2)
+		DEC = np.random.randint(DEC[0],DEC[1]+1,size=npoint**2)
+		pointings = np.array([RA,DEC]).T
+		for i in range(len(pointings)):
+			while len(np.where(np.equal([True,True], np.isclose(pointings[i],pointings,atol=3,rtol=0)).all(axis=1)==True)[0])>1:
+				pointings[i] = np.array([np.random.randint(RA[0],RA[1]+1, size=1)[0], np.random.randint(DEC[0],DEC[1]+1,size=1)[0]])
+
+
+	else:
+		RA = np.linspace(RA[0],RA[1],npoint,endpoint=True).astype(int)
+		DEC = np.linspace(DEC[0],DEC[1],npoint,endpoint=True).astype(int)
+		pointings = []
+		for i in RA:
+			for j in DEC:
+				pointings = pointings + [[i,j]]
 	return pointings
 
 def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid):
@@ -212,6 +222,7 @@ else:
 	SN = [float(inputs['SN'])]
 npoint = int(inputs['ngrid_points'])
 pc_edge_cut = float(inputs['pc_edge_cut'])/100.
+random = str(inputs['random'])
 model = str(inputs['model'])
 type_test = str(inputs['type_test'])
 
@@ -219,7 +230,7 @@ type_test = str(inputs['type_test'])
 outfitsname = fitsfile.split('.fits')[0]+'_CASA.fits'
 convertAIPStoPythonImage(fitsfile,outfitsname)
 header = fits.open(outfitsname)[0].header
-pixel_grid = setup_source_pixel_grid(header, npoint=npoint, pc_edge_cut=pc_edge_cut)
+pixel_grid = setup_source_pixel_grid(header, npoint=npoint, pc_edge_cut=pc_edge_cut,random=random)
 if model == 'gaussian':
 	generate_fits_models_gaus(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
 elif model == 'delta':

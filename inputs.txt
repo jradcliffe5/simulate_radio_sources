@@ -2,8 +2,9 @@
 fitsfile = VLA1996_uvsub2_v2-image.fits
 uvfile = VLA1996_HDF_uvsub2.ms
 fits_rms = VLA1996_uvsub2_v2-image.pybdsm.rmsd_I.fits
-SN = 5,6,7,8,10,15,20,30,50,100,500
+SN = 30
 ngrid_points = 10
+random = True
 pc_edge_cut = 10
 model = delta
 type_test = uvplane
