@@ -222,7 +222,10 @@ def make_Gaussian_beam_kernel(header,oversampling):
 	bmaj = np.abs(header['BMAJ']/header['CDELT1'])/(2*np.sqrt(2*np.log(2)))
 	bmin = np.abs(header['BMIN']/header['CDELT2'])/(2*np.sqrt(2*np.log(2)))
 	bpa = header['BPA']
-	gauss = makeGaussian_bpa(size=int(oversampling*bmaj),amplitude=1, std=[bmaj,bmin], bpa=bpa,center=None)
+	size = int(oversampling*bmaj)
+	if size % 2 == 0:## to catch non odd kernels
+		size = size +1
+	gauss = makeGaussian_bpa(size=size,amplitude=1, std=[bmaj,bmin], bpa=bpa,center=None)
 	return CustomKernel(gauss)
 
 
