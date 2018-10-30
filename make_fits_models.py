@@ -45,13 +45,14 @@ def setup_source_pixel_grid(fitsheader, npoint, pc_edge_cut, random):
 				pointings = pointings + [[i,j]]
 	return pointings
 
-def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid):
+def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid,type_test):
 	'''
 	Generates a delta function grid model sky which can be input into a measure
 	ment set using uvsub
 	'''
 	hdu_list = fits.open(fitsfile)
-	image_data0 = hdu_list[0].data*0.0
+	image_data_implane = np.copy(hdu_list[0].data)
+	image_data0 = np.copy(hdu_list[0].data*0.0)
 	head = hdu_list['PRIMARY'].header
 	wcs = WCS(head)
 
@@ -68,7 +69,7 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid):
 
 
 	for i in range(len(SN)):
-		image_data = image_data0
+		image_data = np.copy(image_data0)
 		SN_flux=np.empty(len(pixel_grid))
 		x = []
 		y = []
@@ -82,13 +83,25 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid):
 			y = y + [pixel_grid[j][1]]
 		x_world = wcs.all_pix2world(x,y,1,1,1)[0]
 		y_world = wcs.all_pix2world(x,y,1,1,1)[1]
-
+		if type_test == 'implane':
+			kernel = make_Gaussian_beam_kernel(head,11)
+			image_data_conv = convolve(image_data.squeeze(), kernel, normalize_kernel=False)
+			#image_data = image_data_conv
+			image_data = np.add(image_data_conv,image_data_implane.squeeze())
 		hdu = fits.PrimaryHDU(image_data, header=head)
 		hdulist = fits.HDUList([hdu])
-		hdulist.writeto(fitsfile.split('.fits')[0]+'_uv_delt_SN%s.fits' % SN[i] ,overwrite=True)
-		os.system('rm %s_uv_delt_SN%s_input_model.csv' % (fitsfile.split('.fits')[0],SN[i]))
-		pd.DataFrame({'x':x,'y':y,'x_deg':x_world,'y_deg':y_world,'mode_flux':SN_flux}).to_csv('%s_uv_delt_SN%s_input_model.csv' % (fitsfile.split('.fits')[0],SN[i]))
-		hdulist.close()
+		if type_test == 'uvplane':
+			hdulist.writeto(fitsfile.split('.fits')[0]+'_uv_delt_SN%s.fits' % SN[i] ,overwrite=True)
+			os.system('rm %s_uv_delt_SN%s_input_model.csv' % (fitsfile.split('.fits')[0],SN[i]))
+			pd.DataFrame({'x':x,'y':y,'x_deg':x_world,'y_deg':y_world,'mode_flux':SN_flux}).to_csv('%s_uv_delt_SN%s_input_model.csv' % (fitsfile.split('.fits')[0],SN[i]))
+			hdulist.close()
+		elif type_test == 'implane':
+			hdulist.writeto(fitsfile.split('.fits')[0]+'_im_delt_SN%s.fits' % SN[i] ,overwrite=True)
+			hdulist.close()
+			os.system('rm %s_im_delt_SN%s_input_model.csv' % (fitsfile.split('.fits')[0],SN[i]))
+			pd.DataFrame({'x':x,'y':y,'x_deg':x_world,'y_deg':y_world,'mode_flux':SN_flux}).to_csv('%s_im_delt_SN%s_input_model.csv' % (fitsfile.split('.fits')[0],SN[i]))
+		else:
+			print('hello')
 
 def makeGaussian(size, fwhm, center):
 	""" Make a square gaussian kernel.
@@ -187,6 +200,8 @@ def generate_fits_models_gaus(fitsfile, SN, rms, pixel_grid, type_test):
 		y_world = wcs.all_pix2world(x,y,1,1,1)[1]
 		if type_test == 'implane':
 			image_data_conv = convolve(image_data, kernel)
+			print(np.shape(image_data_conv))
+			image_data = image_data_conv
 			#image_data = np.add(image_data_conv,rms1)
 		hdu = fits.PrimaryHDU(image_data, header=head)
 		hdulist = fits.HDUList([hdu])
@@ -235,4 +250,4 @@ pixel_grid = setup_source_pixel_grid(header, npoint=npoint, pc_edge_cut=pc_edge_
 if model == 'gaussian':
 	generate_fits_models_gaus(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
 elif model == 'delta':
-	generate_fits_models_delta_fcn(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid)
+	generate_fits_models_delta_fcn(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
