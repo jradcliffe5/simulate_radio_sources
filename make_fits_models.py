@@ -74,7 +74,7 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid):
 		y = []
 		for j in range(len(pixel_grid)):
 			if rms_float == True:
-				SN_flux[j] = float(SN[i]*rms)
+				SN_flux[j] = float(SN[i]*float(rms))
 			else:
 				SN_flux[j] = float(SN[i]*rms_im[pixel_grid[j][1],pixel_grid[j][0]])
 			image_data[0,0,pixel_grid[j][1],pixel_grid[j][0]] = SN_flux[j]
