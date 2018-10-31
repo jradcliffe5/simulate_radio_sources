@@ -8,6 +8,8 @@ from astropy.convolution import CustomKernel
 import os
 from astropy.convolution import convolve
 from astropy.wcs import WCS
+from joblib import Parallel, delayed
+import multiprocessing
 
 def convertAIPStoPythonImage(filename,outfilename):
 	hdu_list = fits.open(filename)
@@ -244,6 +246,7 @@ pc_edge_cut = float(inputs['pc_edge_cut'])/100.
 random = str(inputs['random'])
 model = str(inputs['model'])
 type_test = str(inputs['type_test'])
+parallel = str(inputs['parallel'])
 
 ### Convert fits to not have degenerate axes
 outfitsname = fitsfile.split('.fits')[0]+'_CASA.fits'
@@ -253,4 +256,9 @@ pixel_grid = setup_source_pixel_grid(header, npoint=npoint, pc_edge_cut=pc_edge_
 if model == 'gaussian':
 	generate_fits_models_gaus(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
 elif model == 'delta':
-	generate_fits_models_delta_fcn(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
+	if parallel == 'True':
+		inputs = SN
+		num_cores = multiprocessing.cpu_count()
+		Parallel(n_jobs=num_cores)(delayed(generate_fits_models_delta_fcn)(fitsfile=outfitsname, SN=[i], rms=rms, pixel_grid=pixel_grid,type_test=type_test) for i in inputs)
+	else:
+		generate_fits_models_delta_fcn(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
