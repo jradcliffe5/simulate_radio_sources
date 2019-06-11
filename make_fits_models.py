@@ -34,7 +34,7 @@ def setup_source_pixel_grid(fitsheader, npoint, pc_edge_cut, random):
 		DEC = np.random.randint(DEC[0],DEC[1]+1,size=npoint**2)
 		pointings = np.array([RA,DEC]).T
 		for i in range(len(pointings)):
-			while len(np.where(np.equal([True,True], np.isclose(pointings[i],pointings,atol=3,rtol=0)).all(axis=1)==True)[0])>1:
+			while len(np.where(np.equal([True,True], np.isclose(pointings[i],pointings,atol=10,rtol=0)).all(axis=1)==True)[0])>1:
 				pointings[i] = np.array([np.random.randint(RA[0],RA[1]+1, size=1)[0], np.random.randint(DEC[0],DEC[1]+1,size=1)[0]])
 
 	else:
