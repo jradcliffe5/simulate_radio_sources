@@ -86,7 +86,7 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid,type_test):
 		x_world = wcs.all_pix2world(x,y,1,1,1)[0]
 		y_world = wcs.all_pix2world(x,y,1,1,1)[1]
 		if type_test == 'implane':
-			kernel = make_Gaussian_beam_kernel(head,11)
+			kernel = make_Gaussian_beam_kernel(head,111)
 			image_data_conv = convolve(image_data.squeeze(), kernel, normalize_kernel=False)
 			#image_data = image_data_conv
 			image_data = np.add(image_data_conv,image_data_implane.squeeze())
