@@ -156,7 +156,7 @@ def makeGaussian_astropy(size,amplitude, std, bpa, center):
 	"""
 
 	x, y = np.mgrid[0:size:size,0:size:size]
-	return Gaussian2D(amplitude=amplitude, x_mean=center[0], y_mean=center[1], x_stddev=std[0], y_stddev=std[1], theta=bpa, cov_matrix=None)(x,y)
+	return Gaussian2D(amplitude=amplitude, x_mean=center[0], y_mean=center[1], x_stddev=std[0], y_stddev=std[1], theta=bpa*-1, cov_matrix=None)(x,y)
 
 def generate_fits_models_gaus(fitsfile, SN, rms, pixel_grid, type_test):
 	for i in range(len(SN)):
@@ -223,7 +223,7 @@ def generate_fits_models_gaus(fitsfile, SN, rms, pixel_grid, type_test):
 def make_Gaussian_beam_kernel(header,oversampling):
 	bmaj = np.abs(header['BMAJ']/header['CDELT1'])/(2*np.sqrt(2*np.log(2)))
 	bmin = np.abs(header['BMIN']/header['CDELT2'])/(2*np.sqrt(2*np.log(2)))
-	bpa = header['BPA']
+	bpa = header['BPA']+90.
 	size = int(oversampling*bmaj)
 	if size % 2 == 0:## to catch non odd kernels
 		size = size +1

@@ -1,8 +1,9 @@
 ## Input file for the size measurement tests
-fitsfile = VLA1996_uvsub2_v2-image.fits
+fitsfile = JVLA2011_ep1_uvsub-MFS-image_edited.fits
 uvfile = VLA1996_HDF_uvsub2.ms
-fits_rms = VLA1996_uvsub2_v2-image_rms.fits
+fits_rms = JVLA2011_ep1_uvsub-MFS-image_edited_rms.fits
 SN = 30
+parallel = True
 ngrid_points = 10
 random = True
 pc_edge_cut = 10
