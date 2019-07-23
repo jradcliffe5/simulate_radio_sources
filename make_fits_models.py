@@ -47,7 +47,7 @@ def setup_source_pixel_grid(fitsheader, npoint, pc_edge_cut, random):
 				pointings = pointings + [[i,j]]
 	return pointings
 
-def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid,type_test):
+def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid,type_test,save_model):
 	'''
 	Generates a delta function grid model sky which can be input into a measure
 	ment set using uvsub
@@ -88,7 +88,6 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid,type_test):
 		if type_test == 'implane':
 			kernel = make_Gaussian_beam_kernel(head,23)
 			image_data_conv = convolve(image_data.squeeze(), kernel, normalize_kernel=False)
-			#image_data = image_data_conv
 			image_data = np.add(image_data_conv,image_data_implane.squeeze())
 		hdu = fits.PrimaryHDU(image_data, header=head)
 		hdulist = fits.HDUList([hdu])
@@ -104,6 +103,11 @@ def generate_fits_models_delta_fcn(fitsfile, SN, rms, pixel_grid,type_test):
 			pd.DataFrame({'x':x,'y':y,'x_deg':x_world,'y_deg':y_world,'mode_flux':SN_flux}).to_csv('%s_im_delt_SN%s_input_model.csv' % (fitsfile.split('.fits')[0],SN[i]))
 		else:
 			print('hello')
+		if save_model == True:
+			hdu = fits.PrimaryHDU(image_data_conv, header=head)
+			hdulist = fits.HDUList([hdu])
+			hdulist.writeto(fitsfile.split('.fits')[0]+'_im_delt_SN%s.initmodel.fits' % SN[i] ,overwrite=True)
+			hdulist.close()
 
 def makeGaussian(size, fwhm, center):
 	""" Make a square gaussian kernel.
@@ -228,6 +232,7 @@ def make_Gaussian_beam_kernel(header,oversampling):
 	if size % 2 == 0:## to catch non odd kernels
 		size = size +1
 	gauss = makeGaussian_bpa(size=size,amplitude=1, std=[bmaj,bmin], bpa=bpa,center=None)
+	np.save('Gauss_model.npy',gauss)
 	return CustomKernel(gauss)
 
 
@@ -244,6 +249,7 @@ else:
 npoint = int(inputs['ngrid_points'])
 pc_edge_cut = float(inputs['pc_edge_cut'])/100.
 random = str(inputs['random'])
+save_model = bool(inputs['save_model'])
 model = str(inputs['model'])
 type_test = str(inputs['type_test'])
 parallel = str(inputs['parallel'])
@@ -259,6 +265,6 @@ elif model == 'delta':
 	if parallel == 'True':
 		inputs = SN
 		num_cores = multiprocessing.cpu_count()
-		Parallel(n_jobs=num_cores)(delayed(generate_fits_models_delta_fcn)(fitsfile=outfitsname, SN=[i], rms=rms, pixel_grid=pixel_grid,type_test=type_test) for i in inputs)
+		Parallel(n_jobs=num_cores)(delayed(generate_fits_models_delta_fcn)(fitsfile=outfitsname, SN=[i], rms=rms, pixel_grid=pixel_grid,type_test=type_test,save_model=save_model) for i in inputs)
 	else:
 		generate_fits_models_delta_fcn(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)

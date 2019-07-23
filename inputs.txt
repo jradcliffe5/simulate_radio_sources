@@ -8,6 +8,7 @@ ngrid_points = 10
 random = True
 pc_edge_cut = 10
 model = delta
+save_model = True
 type_test = implane
 wsclean_run = True
 wsclean_beam = 1.7603586912155151, 1.7405569553375244, 359.57032775878906
