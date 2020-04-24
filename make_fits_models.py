@@ -258,7 +258,12 @@ parallel = str(inputs['parallel'])
 outfitsname = fitsfile.split('.fits')[0]+'_CASA.fits'
 convertAIPStoPythonImage(fitsfile,outfitsname)
 header = fits.open(outfitsname)[0].header
-pixel_grid = setup_source_pixel_grid(header, npoint=npoint, pc_edge_cut=pc_edge_cut,random=random)
+while True:
+    try:
+        pixel_grid = setup_source_pixel_grid(header, npoint=npoint, pc_edge_cut=pc_edge_cut,random=random)
+        break
+    except:
+        pass
 if model == 'gaussian':
 	generate_fits_models_gaus(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
 elif model == 'delta':
