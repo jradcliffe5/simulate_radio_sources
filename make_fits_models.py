@@ -273,4 +273,4 @@ elif model == 'delta':
 		num_cores = multiprocessing.cpu_count()
 		Parallel(n_jobs=num_cores)(delayed(generate_fits_models_delta_fcn)(fitsfile=outfitsname, SN=[i], rms=rms, pixel_grid=pixel_grid,type_test=type_test,save_model=save_model) for i in inputs)
 	else:
-		generate_fits_models_delta_fcn(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test)
+		generate_fits_models_delta_fcn(fitsfile=outfitsname, SN=SN, rms=rms, pixel_grid=pixel_grid,type_test=type_test,save_model=save_model)
